@@ -10,7 +10,7 @@ No character generator or example artwork is included.
 Requirements are Linux, Python 3.12 or newer, Git, `curl`, `tar`, `sha256sum`, and `make`.
 
 ```bash
-cd ~/Documents/ThinkBreakDev/pixel-art-codex
+cd ~/Documents/ThinkbreakDev/pixel-art-codex
 make install
 make check
 ```
