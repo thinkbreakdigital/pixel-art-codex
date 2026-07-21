@@ -80,8 +80,8 @@ def integer_interpolate(start: int, end: int, numerator: int, denominator: int) 
     if total <= 0 or not 0 <= step <= total:
         raise ValueError("require denominator > 0 and 0 <= numerator <= denominator")
     scaled = (end_value - start_value) * step
-    adjustment = total // 2 if scaled >= 0 else -(total // 2)
-    return start_value + int((scaled + adjustment) / total)
+    rounded = (scaled + total // 2) // total if scaled >= 0 else -((-scaled + total // 2) // total)
+    return start_value + rounded
 
 
 def ping_pong_order(frame_count: int, *, duplicate_endpoints: bool = False) -> tuple[int, ...]:

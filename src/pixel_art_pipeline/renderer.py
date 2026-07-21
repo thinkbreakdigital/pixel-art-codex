@@ -11,7 +11,7 @@ from typing import Any
 from PIL import Image
 
 from pixel_art_pipeline.geometry import Bounds, Point, require_int
-from pixel_art_pipeline.palette import RGBA, Palette, PaletteError, parse_rgba
+from pixel_art_pipeline.palette import RGBA, Palette, PaletteError, rgba_to_hex
 
 
 class SpecificationError(ValueError):
@@ -81,6 +81,8 @@ class SpriteSpecification:
             raise SpecificationError("loop must be a boolean")
         if self.background not in {"transparent", "opaque"}:
             raise SpecificationError("background must be 'transparent' or 'opaque'")
+        if self.frame_duration_ms % 10 != 0:
+            raise SpecificationError("frame_duration_ms must be a multiple of 10 for GIF timing")
         if not (0 <= self.anchor.x < self.width and 0 <= self.anchor.y < self.height):
             raise SpecificationError("anchor must be inside the canvas")
         if self.random_seed is not None:
@@ -215,7 +217,7 @@ def create_canvas(width: int, height: int, background: RGBA = (0, 0, 0, 0)) -> I
     checked_height = require_int(height, "height")
     if checked_width <= 0 or checked_height <= 0:
         raise ValueError("canvas dimensions must be positive")
-    parse_rgba("#" + "".join(f"{channel:02X}" for channel in background))
+    rgba_to_hex(background)
     return Image.new("RGBA", (checked_width, checked_height), background)
 
 
@@ -224,12 +226,16 @@ def render_frame(
     layers: Sequence[RenderLayer],
     frame_index: int,
     *,
-    background: RGBA = (0, 0, 0, 0),
+    background: RGBA | None = None,
 ) -> Image.Image:
     """Render one frame by compositing visible layers in stable order."""
     checked_index = require_int(frame_index, "frame_index")
     if not 0 <= checked_index < specification.frame_count:
         raise ValueError(f"frame_index must be in 0..{specification.frame_count - 1}")
+    if background is None:
+        if specification.background == "opaque":
+            raise ValueError("opaque specifications require an explicit background color")
+        background = (0, 0, 0, 0)
     canvas = create_canvas(specification.width, specification.height, background)
     for layer in sorted(enumerate(layers), key=lambda item: (item[1].order, item[0])):
         render_layer = layer[1]

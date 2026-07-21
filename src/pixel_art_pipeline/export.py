@@ -131,7 +131,10 @@ def save_sprite_sheet(result: SheetResult, path: Path, *, overwrite: bool = Fals
 def save_gif_preview(sequence: FrameSequence, path: Path, *, overwrite: bool = False) -> Path:
     """Save an animated GIF preview with explicit per-frame timing."""
     _prepare_target(path, overwrite)
+    if any(duration % 10 != 0 for duration in sequence.durations_ms):
+        raise ExportError("GIF frame durations must be multiples of 10 milliseconds")
     first, *remaining = sequence.frames
+    loop_options: dict[str, Any] = {"loop": 0} if sequence.loop else {}
     try:
         first.save(
             path,
@@ -139,9 +142,9 @@ def save_gif_preview(sequence: FrameSequence, path: Path, *, overwrite: bool = F
             save_all=True,
             append_images=list(remaining),
             duration=list(sequence.durations_ms),
-            loop=0 if sequence.loop else 1,
             disposal=2,
             optimize=False,
+            **loop_options,
         )
     except OSError as error:
         raise ExportError(f"could not export GIF {path}: {error}") from error
@@ -305,6 +308,24 @@ def export_bundle(
     """Export frames, three sheets, GIF/nearest previews, contact sheet, and metadata."""
     if output_directory.exists() and not output_directory.is_dir():
         raise ExportError(f"output path is not a directory: {output_directory}")
+    padding = max(4, len(str(len(sequence.frames) - 1)))
+    expected_paths = [
+        *(
+            output_directory / "frames" / f"{asset_name}_{index:0{padding}d}.png"
+            for index in range(len(sequence.frames))
+        ),
+        output_directory / "sheets" / f"{asset_name}_horizontal.png",
+        output_directory / "sheets" / f"{asset_name}_vertical.png",
+        output_directory / "sheets" / f"{asset_name}_grid.png",
+        output_directory / "previews" / f"{asset_name}.gif",
+        output_directory / "previews" / f"{asset_name}_nearest.png",
+        output_directory / "previews" / f"{asset_name}_contact.png",
+        output_directory / "metadata" / f"{asset_name}.json",
+    ]
+    if not overwrite:
+        conflict = next((path for path in expected_paths if path.exists()), None)
+        if conflict is not None:
+            raise FileExistsError(f"refusing partial export; output already exists: {conflict}")
     frame_paths = save_frame_sequence(
         sequence.frames,
         output_directory / "frames",

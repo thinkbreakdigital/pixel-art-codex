@@ -22,7 +22,8 @@ def parse_rgba(value: object) -> RGBA:
     """Parse a strict ``#RRGGBBAA`` value into an RGBA tuple."""
     if not isinstance(value, str) or _RGBA_PATTERN.fullmatch(value) is None:
         raise PaletteError(f"expected #RRGGBBAA color, got {value!r}")
-    return tuple(bytes.fromhex(value[1:]))  # type: ignore[return-value]
+    channels = bytes.fromhex(value[1:])
+    return channels[0], channels[1], channels[2], channels[3]
 
 
 def rgba_to_hex(value: RGBA) -> str:
