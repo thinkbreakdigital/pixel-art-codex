@@ -179,4 +179,3 @@ Before reporting completion:
   change.
 - Report validation/check results honestly and call out visual judgments that still need human review.
 - Do not commit, push, create releases, or publish generated assets unless the user explicitly asks.
-
