@@ -5,6 +5,9 @@ integer geometry, strict palettes and JSON specifications, reusable drawing prim
 rendering, animation helpers, exports, validation, and a verified portable Pixelorama install.
 No character generator or example artwork is included.
 
+Coding agents should read [`AGENTS.md`](AGENTS.md) before creating or changing sprites, palettes,
+animations, generators, or asset references.
+
 ## Install
 
 Requirements are Linux, Python 3.12 or newer, Git, `curl`, `tar`, `sha256sum`, and `make`.
@@ -57,6 +60,7 @@ Export refuses to overwrite by default; add `--overwrite` intentionally. `--prev
   of the release archive's enclosing directory.
 - `tests/`: in-memory and temporary-directory tests; no test images remain in the repository.
 - `docs/`: pipeline, art rules, and generator workflow.
+- `AGENTS.md`: repository-specific operating and reference-consistency rules for coding agents.
 
 Future generators should be separate modules that accept a validated `SpriteSpecification` and
 `Palette`, return RGBA Pillow frames, and contain no hard-coded example command in the main CLI.
