@@ -1,0 +1,29 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+*.tmp
+*.part
+.DS_Store
+*~
+
+# Portable tool payload is installed locally but is not source-controlled.
+.tools/pixelorama/*
+!.tools/pixelorama/.gitkeep
+
+# Generated outputs are ignored; directory sentinels remain tracked.
+build/frames/*
+!build/frames/.gitkeep
+build/previews/*
+!build/previews/.gitkeep
+build/sheets/*
+!build/sheets/.gitkeep
+build/metadata/*
+!build/metadata/.gitkeep
+build/pixelorama/*
+!build/pixelorama/.gitkeep
+
